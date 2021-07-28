@@ -7,6 +7,8 @@ app.engine('.hbs', hbs());  //pozwala zdefiniować nam, że dane pliki powinny b
 app.set('view engine', '.hbs');  //Ten fragment mówi, że w aplikacji używamy widoków właśnie o tym rozszerzeniu. Dzięki temu, przy kompilacji, będziemy mogli wskazywać tylko jego nazwę, a Express sam domyśli się, że ma szukać pliku z odpowiednią końcówką
 
 app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.render('index');
@@ -31,6 +33,19 @@ app.get('/info', (req, res) => {
 app.get('/history', (req, res) => {
   res.render('history');
 });
+
+//nowy task
+app.post('/contact/send-message', (req, res) => {
+  const { author, sender, title, message } = req.body;
+
+  if(author && sender && title && message) {
+    res.send('The message has been sent!');
+  }
+  else {
+    res.send('You can\'t leave fields empty!');
+  }
+});
+
 
 app.use((req, res) => {
   res.status(404).send('404 not found...');
