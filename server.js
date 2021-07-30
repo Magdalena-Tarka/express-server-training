@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const hbs = require('express-handlebars');
+var multer = require('multer');
+var upload = multer({dest:'uploads/'});
 
 const app = express();
 app.engine('.hbs', hbs());  //pozwala zdefiniować nam, że dane pliki powinny być renderowane przez dany silnik. informujemy Express o tym, że pliki o rozszerzeniu .hbs powinny być obsługiwane przez silnik hbs (czyli nasz załadowany Handlebars)
@@ -23,7 +25,7 @@ app.get('/about', (req, res) => {
 });
 
 app.get('/contact', (req, res) => {
-  res.render('contact', { layout: 'dark' });
+  res.render('contact');
 });
 
 app.get('/info', (req, res) => {
@@ -34,18 +36,16 @@ app.get('/history', (req, res) => {
   res.render('history');
 });
 
-//nowy task
-app.post('/contact/send-message', (req, res) => {
+app.post('/contact/send-message', upload.single('file'), (req, res) => {
   const { author, sender, title, message } = req.body;
 
-  if(author && sender && title && message) {
-    res.send('The message has been sent!');
+  if(author && sender && title && message && req.file) {
+    res.render('contact', { isSent: true, fileName: req.file.originalname });
   }
   else {
-    res.send('You can\'t leave fields empty!');
+    res.render('contact', { isError: true });
   }
 });
-
 
 app.use((req, res) => {
   res.status(404).send('404 not found...');
